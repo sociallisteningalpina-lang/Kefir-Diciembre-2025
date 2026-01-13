@@ -7,11 +7,9 @@ Personalizable por campaña/producto
 
 import re
 from typing import Callable
-
-
 def create_topic_classifier() -> Callable[[str], str]:
     """
-    Retorna una función de clasificación de temas personalizada para esta campaña.
+    Retorna una función de clasificación de temas personalizada para la campaña de Kéfir Plus.
     
     Returns:
         function: Función que toma un comentario (str) y retorna un tema (str)
@@ -34,61 +32,112 @@ def create_topic_classifier() -> Callable[[str], str]:
         """
         comment_lower = str(comment).lower()
         
-        # CATEGORÍA 1: Preguntas sobre el Producto
-        if re.search(
-            r'\bprecio\b|\bcu[aá]nto vale\b|d[oó]nde|c[oó]mo consigo|'
-            r'duda|pregunta|comprar|tiendas|disponible|sirve para|'
-            r'c[oó]mo se toma|tiene az[uú]car|valor',
-            comment_lower
-        ):
-            return 'Preguntas sobre el Producto'
-        
-        # CATEGORÍA 2: Comparación con Kéfir Casero/Artesanal
+        # CATEGORÍA 1: Comparación con Kéfir Casero/Artesanal
+        # (Prioridad alta - es un tema muy recurrente)
         if re.search(
             r'b[úu]lgaros|n[oó]dulos|en casa|casero|artesanal|'
-            r'preparo yo|vendo el cultivo|hecho por mi',
+            r'preparo yo|hago mi|preparo mi|vendo el cultivo|hecho por mi|'
+            r'hago yo|mejor hacer|tengo b[úu]lgaros|regalo.*b[úu]lgaros|'
+            r'f[aá]cil.*hacer|c[oó]mo.*prepara|tu mism[ao]',
             comment_lower
         ):
             return 'Comparación con Kéfir Casero/Artesanal'
         
-        # CATEGORÍA 3: Ingredientes y Salud
+        # CATEGORÍA 2: Precio y Valor Percibido
+        # (Nueva categoría - muy mencionado en comentarios)
         if re.search(
-            r'aditivos|almid[oó]n|preservantes|lactosa|microbiota|'
-            r'flora intestinal|saludable|bacterias|vivas|gastritis|'
-            r'colon|helicobacter|az[uú]car añadid[oa]s',
+            r'\bcaro\b|muy caro|tan caro|absurdamente caro|precio|'
+            r'econ[oó]mic[oa]|vale|cuesta|m[aá]s barato|'
+            r'dejando pobre|paladar de pobre|sale m[aá]s',
             comment_lower
         ):
-            return 'Ingredientes y Salud'
+            return 'Precio y Valor Percibido'
         
-        # CATEGORÍA 4: Competencia y Disponibilidad
+        # CATEGORÍA 3: Ingredientes y Composición
         if re.search(
-            r'pasco|\b[eé]xito\b|\bara\b|ol[ií]mpica|d1|'
-            r'copia de|no lo venden|no llega|no lo encuentro|no hay en',
+            r'conservantes|colorantes|saborizantes|aditivos|'
+            r'almid[oó]n|preservantes|qu[ií]micos|azúcar|az[uú]car|'
+            r'gelatina|procesad[oa]|industrial|c[aá]ncer|cero qu[ií]mico|'
+            r'fructuosa|natural|libre de',
             comment_lower
         ):
-            return 'Competencia y Disponibilidad'
+            return 'Ingredientes y Composición'
         
-        # CATEGORÍA 5: Opinión General del Producto
+        # CATEGORÍA 4: Beneficios de Salud y Experiencias
         if re.search(
-            r'rico|bueno|excelente|gusta|mejor|delicioso|espectacular|'
-            r'encanta|s[úu]per|feo|horrible|mal[ií]simo|sabe a',
+            r'microbiota|flora intestinal|probi[oó]tic|digestión|'
+            r'gastritis|helicobacter|pylori|col[oó]n|irritable|'
+            r'cur[eé]|me cur[oó]|bueno para|ayuda|salud|'
+            r'intolerante.*lactosa|lactosa|sin lactosa|'
+            r'fermentaci[oó]n|bacterias',
             comment_lower
         ):
-            return 'Opinión General del Producto'
+            return 'Beneficios de Salud y Experiencias'
         
-        # CATEGORÍA 6: Fuera de Tema / No Relevante
+        # CATEGORÍA 5: Sabor y Experiencia de Consumo
         if re.search(
-            r'am[eé]n|jajaja|receta|gracias|bendiciones',
+            r'sabe feo|sabe refeo|no me asent[oó]|rico|delicioso|'
+            r'no me gusta|me encanta|sabor|paladar|'
+            r'diarrea|me dio|mala experiencia',
             comment_lower
-        ) or len(comment_lower.split()) < 3:
-            return 'Fuera de Tema / No Relevante'
+        ):
+            return 'Sabor y Experiencia de Consumo'
         
-        # CATEGORÍA DEFAULT: Otros
+        # CATEGORÍA 6: Competencia y Marcas Alternativas
+        if re.search(
+            r'dejamu|pomar|san mart[ií]n|colanta|'
+            r'mejor el de|otro|marca|alternativa|'
+            r'd1|ara|tienda',
+            comment_lower
+        ):
+            return 'Competencia y Marcas Alternativas'
+        
+        # CATEGORÍA 7: Disponibilidad y Distribución
+        if re.search(
+            r'no ha llegado|no lo encuentro|yopal|dónde|d[oó]nde|'
+            r'donde comprar|consigo|disponible|venden|'
+            r'no hay|difícil conseguir|cliente',
+            comment_lower
+        ):
+            return 'Disponibilidad y Distribución'
+        
+        # CATEGORÍA 8: Recetas y Usos
+        if re.search(
+            r'receta|ch[ií]a|avena|granola|c[oó]mo.*prepara|'
+            r'combino con|mezclo|preparar',
+            comment_lower
+        ):
+            return 'Recetas y Usos'
+        
+        # CATEGORÍA 9: Comentarios sobre la Publicidad/Influencer
+        if re.search(
+            r'caitlyn jenner|kardashian|pilates|mewing|'
+            r'doctor[a]|pupi|cata|divina|publicidad|'
+            r'marketing|publicit|sponsor',
+            comment_lower
+        ):
+            return 'Comentarios sobre la Publicidad'
+        
+        # CATEGORÍA 10: Fuera de Tema / Solo Emojis
+        # Detectar comentarios que son principalmente emojis o muy cortos
+        emoji_count = len(re.findall(r'[😀-🙏🌀-🗿]|❤️|♥️|✨|💛|💗|💞|💋|🌺|🌹|👍|🙊|🙏', comment))
+        word_count = len([w for w in comment_lower.split() if len(w) > 2])
+        
+        if emoji_count > word_count or word_count < 2:
+            return 'Fuera de Tema / Solo Emojis'
+        
+        if re.search(
+            r'^\s*\[sticker\]\s*$|^xd$|^jaja|^gracias$|'
+            r'^bendiciones$|^am[eé]n$|^si$|^no$|'
+            r'^❤|^♥|^✨',
+            comment_lower.strip()
+        ):
+            return 'Fuera de Tema / Solo Emojis'
+        
+        # CATEGORÍA 11: Otros
         return 'Otros'
     
     return classify_topic
-
-
 # ============================================================================
 # METADATA DE LA CAMPAÑA (OPCIONAL)
 # ============================================================================
